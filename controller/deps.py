@@ -25,7 +25,7 @@ def install_core_deps():
     sh([sys.executable, "-m", "pip", "install", "--upgrade", "transformers"])
 
 def install_open_writing_bench(owb_repo: str, owb_ref: str):
-    path = "/workspace/open-writing-bench"
+    path = "/root/open-writing-bench"
     shutil.rmtree(path, ignore_errors=True)
     sh(["git", "clone", "--depth", "1", "--branch", owb_ref, owb_repo, path])
     # Use uv to install OWB so the `bench` console script is wired up cleanly.

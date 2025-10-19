@@ -7,6 +7,6 @@ Runs OWB inside a Runpod. Reads env:
 Behavior:
 - installs vllm then upgrades transformers
 - installs OWB with uv
-- resolves .gguf URLs by downloading to /workspace/models
+- resolves .gguf URLs by downloading to /root/models
 - runs `uv run bench ...`
 - streams stdout/stderr to run_logs every 30s

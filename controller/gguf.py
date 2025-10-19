@@ -18,7 +18,7 @@ def maybe_resolve_gguf(test_model: str) -> str:
     # normalize blob -> resolve for direct download
     url = url.replace("/blob/", "/resolve/")
 
-    target = Path("/workspace/models")
+    target = Path("/root/models")
     target.mkdir(parents=True, exist_ok=True)
     filename = url.split("/")[-1]
     out = target / filename
