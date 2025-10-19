@@ -1,7 +1,7 @@
 import os
 import sys
 import time
-import json
+import requests
 import subprocess
 from datetime import datetime, timezone
 from .deps import ensure_uv, install_core_deps, install_open_writing_bench
@@ -83,7 +83,53 @@ def main():
         except Exception:
             pass
 
+        # Attempt in-pod stop on normal or error exit.
+    try:
+        _maybe_stop_runpod(rc)
+    except Exception as _e:
+        # non-fatal
+        pass
+
     sys.exit(rc if rc is not None else 1)
+
+
+def _rp_base():
+    b = os.environ.get("RUNPOD_ENDPOINT_BASE", "https://rest.runpod.io/v1").rstrip("/")
+    return b
+
+def _rp_headers():
+    key = os.environ.get("RUNPOD_API_KEY")
+    if not key:
+        raise RuntimeError("RUNPOD_API_KEY not set in pod env")
+    return {"Authorization": f"Bearer {key}", "Content-Type": "application/json"}
+
+def _maybe_stop_runpod(exit_code: int | None):
+    """
+    Best-effort self-termination.
+    1) Use RUNPOD_POD_ID if available.
+    2) Else, list pods and match by POD_NAME.
+    """
+    pod_id = os.environ.get("RUNPOD_POD_ID")
+    if not pod_id:
+        # Fallback: discover by name
+        name = os.environ.get("POD_NAME")
+        if not name:
+            return
+        r = requests.get(f"{_rp_base()}/pods", headers=_rp_headers(), timeout=20)
+        r.raise_for_status()
+        items = r.json() if isinstance(r.json(), list) else r.json().get("data") or r.json().get("pods") or []
+        for it in items:
+            if it.get("name") == name:
+                pod_id = it.get("id") or it.get("podId") or it.get("data", {}).get("id")
+                if pod_id:
+                    break
+    if not pod_id:
+        return
+    # Stop the pod
+    try:
+        requests.post(f"{_rp_base()}/pods/{pod_id}/stop", headers=_rp_headers(), timeout=20)
+    except Exception:
+        pass
 
 if __name__ == "__main__":
     main()
