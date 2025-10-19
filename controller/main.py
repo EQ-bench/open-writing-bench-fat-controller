@@ -33,8 +33,11 @@ def main():
     proc = subprocess.Popen(
         argv,
         stdout=subprocess.PIPE,
-        stderr=subprocess.PIPE,
-        bufsize=1,
+        stderr=subprocess.STDOUT,   # merge for simpler streaming
+        text=True,                  # text mode enables real line buffering
+        bufsize=1,                  # line-buffered
+        encoding="utf-8",
+        errors="replace",
     )
 
     engine = make_engine(db_url)
@@ -44,6 +47,7 @@ def main():
     last_flush = time.monotonic()
     FLUSH_EVERY = 30.0  # seconds
 
+    rc = None
     try:
         while True:
             # Periodic flush
@@ -59,6 +63,7 @@ def main():
 
             ret = proc.poll()
             if ret is not None:
+                rc = ret
                 # Final drain
                 out_chunk = agg.drain_chunk(agg.q_out)
                 err_chunk = agg.drain_chunk(agg.q_err)
@@ -76,6 +81,8 @@ def main():
             proc.terminate()
         except Exception:
             pass
+
+    sys.exit(rc if rc is not None else 1)
 
 if __name__ == "__main__":
     main()

@@ -18,7 +18,8 @@ def ensure_uv():
 
 def install_core_deps():
     # Pure pip path for core deps.
-    sh([sys.executable, "-m", "pip", "install", "--upgrade", "pip", "setuptools", "wheel"])
+    sh([sys.executable, "-m", "pip", "install", "--upgrade", "pip<25.3", "setuptools>=77,<80", "wheel"])
+
     sh([sys.executable, "-m", "pip", "install", "--upgrade", "vllm"])
     # Upgrade transformers after vllm to ensure the newest version wins.
     sh([sys.executable, "-m", "pip", "install", "--upgrade", "transformers"])

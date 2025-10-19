@@ -8,8 +8,9 @@ class PipeAggregator:
         self.q_err = Queue()
 
     def reader(self, stream, q: Queue):
-        for line in iter(stream.readline, b""):
-            q.put(line.decode(errors="replace"))
+        for line in iter(stream.readline, ""):
+            q.put(line)
+
         stream.close()
 
     def start(self, proc):
