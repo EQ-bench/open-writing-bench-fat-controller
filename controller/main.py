@@ -125,9 +125,14 @@ def _maybe_stop_runpod(exit_code: int | None):
                     break
     if not pod_id:
         return
-    # Stop the pod
+    # stop first, then delete
     try:
         requests.post(f"{_rp_base()}/pods/{pod_id}/stop", headers=_rp_headers(), timeout=20)
+    except Exception:
+        pass
+    time.sleep(1)
+    try:
+        requests.delete(f"{_rp_base()}/pods/{pod_id}", headers=_rp_headers(), timeout=20)
     except Exception:
         pass
 
