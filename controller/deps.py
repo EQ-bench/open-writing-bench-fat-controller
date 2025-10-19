@@ -22,7 +22,7 @@ def install_core_deps():
 
     sh([sys.executable, "-m", "pip", "install", "--upgrade", "vllm"])
     # Upgrade transformers after vllm to ensure the newest version wins.
-    sh([sys.executable, "-m", "pip", "install", "--upgrade", "transformers"])
+    sh([sys.executable, "-m", "pip", "install", "--upgrade", "transformers>=4.45", "numpy<2.3"])
 
 def install_open_writing_bench(owb_repo: str, owb_ref: str):
     path = "/root/open-writing-bench"
