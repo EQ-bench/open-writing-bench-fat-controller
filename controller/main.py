@@ -33,12 +33,13 @@ def main():
     proc = subprocess.Popen(
         argv,
         stdout=subprocess.PIPE,
-        stderr=subprocess.STDOUT,   # merge for simpler streaming
-        text=True,                  # text mode enables real line buffering
-        bufsize=1,                  # line-buffered
+        stderr=subprocess.PIPE,
+        text=True,
+        bufsize=1,
         encoding="utf-8",
         errors="replace",
     )
+
 
     engine = make_engine(db_url)
     agg = PipeAggregator()
